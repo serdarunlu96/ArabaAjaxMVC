@@ -1,0 +1,119 @@
+﻿@{
+    ViewData["Title"] = "Araba Sorgulama";
+}
+
+<div>
+    <h2>Araba Sorgulama</h2>
+    <input type="text" id="txtArabaId" placeholder="Araba Id girin">
+    <button id="btnSorgula">Bul</button>
+</div>
+<div id="arabaBilgileriDiv"></div>
+
+<div id="resimDiv">
+</div>
+
+<div>
+    <h2>Araba Ekleme</h2>
+    <input type="text" id="txtMarka" placeholder="Marka"></input>
+    <input type="text" id="txtModel" placeholder="Model"></input>
+    <input type="text" id="txtRenk" placeholder="Renk"></input>
+    <input type="text" id="txtUrl" placeholder="Resim"></input>
+    <button id="btnEkle">Ekle</button>
+</div>
+
+<div>
+    <h2>Araba Sil</h2>
+    <input type="text" id="txtId" placeholder="Id"></input>
+    <button id="btnSil">Sil</button>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Araba sorgulama işlemi
+        $("#btnSorgula").click(function () {
+            var arabaId = $("#txtArabaId").val();
+            $.ajax({
+                type: "POST",
+                url: "/Home/ArabaSorgula",
+                data: { id: arabaId },
+                dataType: "json",
+                success: function (result) {
+                    if (result.errorMessage) {
+                        $("#arabaBilgileriDiv").html(result.errorMessage);
+                        $("#resimDiv").html("");
+                    } else {
+                        var arabaBilgileri = "<h4>Araba Bilgileri</h4>" +
+                            "<p>Marka: " + result.marka + "</p>" +
+                            "<p>Model: " + result.model + "</p>" +
+                            "<p>Renk: " + result.renk + "</p>";
+                        $("#arabaBilgileriDiv").html(arabaBilgileri);
+                        
+                        if (result.resimUrl) {
+                            var resimHtml = "<img src='" + result.resimUrl + "' alt='Araba Resmi'>";
+                            $("#resimDiv").html(resimHtml);
+                        } else {
+                            $("#resimDiv").html("");
+                        }
+                    }
+                },
+                error: function () {
+                    $("#arabaBilgileriDiv").html("Hata oluştu.");
+                    $("#resimDiv").html("");
+                }
+            });
+        });
+
+        // Araba ekleme işlemi
+        $("#btnEkle").click(function () {
+            var marka = $("#txtMarka").val();
+            var model = $("#txtModel").val();
+            var renk = $("#txtRenk").val();
+            var resimUrl = $("#txtUrl").val(); // Resim URL'si
+
+            var araba = { marka: marka, model: model, renk: renk, resimUrl: resimUrl };
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/ArabaEkle",
+                data: JSON.stringify(araba),
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (result) {
+                    if (result) {
+                        $("#txtMarka").val("");
+                        $("#txtModel").val("");
+                        $("#txtRenk").val("");
+                        $("#txtUrl").val(""); // Resim URL'sini temizle
+                        alert("Araba eklendi! ID: " + result.id);
+                    }
+                },
+                error: function () {
+                    alert("Araba eklenirken hata oluştu.");
+                }
+            });
+        });
+
+        // Araba silme işlemi
+        $("#btnSil").click(function () {
+            var silId = $("#txtId").val(); // txtId olarak düzeltilmiş
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/ArabaSil",
+                data: { id: silId },
+                success: function (result) {
+                    if (result.success) {
+                        $("#txtId").val("");
+                        alert("Araba silindi!");
+                    } else {
+                        alert(result.errorMessage || "Araba bulunamadı veya silinemedi.");
+                    }
+                },
+                error: function () {
+                    alert("Araba silinirken hata oluştu.");
+                }
+            });
+        });
+    });
+</script>

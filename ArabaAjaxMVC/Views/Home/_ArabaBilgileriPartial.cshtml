@@ -1,0 +1,15 @@
+﻿@model ArabaAjaxMVC.Models.Araba
+
+@if (Model != null)
+{
+    <br><br/>
+    <h4><strong>Araba Bilgileri</strong></h4><br><br/>
+    <p><strong>Marka: </strong>@Model.Marka</p><br><br/>
+    <p><strong>Model: </strong>@Model.Model</p><br><br/>
+    <p><strong>Renk: </strong>@Model.Renk</p><br><br/>
+}
+else
+{
+    <br><br/>
+    <p><strong>Araba bulunamadı.</strong></p>
+}
